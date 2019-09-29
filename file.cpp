@@ -14,7 +14,7 @@ using namespace std;
 
 File::File(string filePath)
 {
-	//
+	//make this file path equal to the other filepath  
 	this->filePath = filePath;
 }
 
