@@ -6,6 +6,7 @@ Section 1
 Programming Assignment 2
 */
 
+/*
 #include <iostream>
 using namespace std;
 
@@ -18,5 +19,7 @@ public:
 	//functions
 	//constructor that takes in the file name
 	File(string filePath);
+	string fileLines();
 	string readFile();
 };
+*/

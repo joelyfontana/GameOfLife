@@ -7,6 +7,7 @@ Programming Assignment 2*/
 #include <iostream>
 #include <algorithm>
 #include <string>
+#include <fstream>
 #include "Grid.h"
 
 using namespace std;
@@ -23,6 +24,12 @@ Grid::Grid(int height, int width, float density, string mode)
 	makeGrid();
 }
 
+Grid::Grid(string filePath, string mode)
+{
+	openFile(filePath);
+	this->mode = mode;
+}
+/*
 //next generation constructor (does not need to know the density)
 Grid::Grid(int height, int width, string mode, string nextString)
 {
@@ -32,6 +39,7 @@ Grid::Grid(int height, int width, string mode, string nextString)
 	makeGrid();
 	nextGenGrid(nextString);
 }
+*/
 
 //destructor
 Grid::~Grid()
@@ -78,12 +86,15 @@ string Grid::getString()
 //make a string that holds the next generation
 string Grid::nextGenStr()
 {
+	//cout << "line 89" << endl;
 	string nextString = "";
 	//iterate through the rows of the array
 	for (int row = 0; row < sizeX; ++row)
 	{
 		for (int col = 0; col < sizeY; ++col)
 		{
+			//cout << "col" << col << endl;
+			//cout << "row" << row << endl;
 			//APPLY THE RULES OF THE GAME
 			//if a cell has 3 neighbors
 			if (countNeighbors(row, col) ==3)
@@ -95,14 +106,13 @@ string Grid::nextGenStr()
 			{
 				nextString += string(1, 'X');
 			}
-			//if a cell has one or less neighbors or has 2 but is already empty
+			//if a cell has one or less neighbors, has 2 but is already empty, or has 4 or more
 			else
 			{
 				nextString += string(1, '-');
 			}
 		}
 	}
-	//cout << "Next Generation String: \n" << nextString << endl;
 	return nextString;
 }
 
@@ -157,14 +167,15 @@ void Grid::nextGenGrid(string nextString)
 			++counter;
 		}
 	}
-	//cout << nextString << endl;
 }
 
 //count a cells neighbors
 int Grid::countNeighbors(int row, int col)
 {
-	//cout << "checking neighbors" << endl;
-	int neighbor;
+//	cout << "checking neighbors" << endl;
+	int neighbor=0;
+
+	//ERROR HERE
 
 		//checks right of cell
 		if (checkNeighbor(row + 1,col) == true)
@@ -206,7 +217,6 @@ int Grid::countNeighbors(int row, int col)
 		{
 			neighbor++;
 		}
-		//cout << "neighbors:" << neighbor << endl;
 		return neighbor;
 }
 
@@ -217,26 +227,124 @@ bool Grid::checkNeighbor(int x, int y)
 	//CLASSIC MODE
 	if (mode == "Classic")
 	{
+		//check to see if the cell is outside the array and return false if it is
 		if (x < 0 || y < 0 || x >= sizeX || y >= sizeY)
 		{
 			return false;
 		}
+		// if the value is in the grid and an X return true
 		else if (gameGrid[x][y] == 'X')
 		{
 			return true;
 		}
+		//returns false if the value is in the grid but is not an X
 		return false;
 	}
 	//DOUGHNUT MODE
 	if (mode == "Doughnut")
 	{
+		//check to see if the value is outside the grid
+		//if (x < 0 || y < 0 || x >= sizeX || y >= sizeY)
+		//{
+				//if the value is at the last spot in the grid
+			if (x >= sizeX)
+			{
+				x = 0;
+			}
+			if (y >= sizeY)
+			{
+				y = 0;
+			}
+			//if the value is outside the grid, loop it around to the first value 
+			if (x < 0)
+			{
+				x = sizeX - 1;
+			}
+			if (y < 0)
+			{
+				y = sizeY - 1;
+			}
+			
+			if (gameGrid[x][y] == 'X')
+			{
+				return true; 
+			}
+		//}
 
+		//if the value already exists in the grid
+		else if (gameGrid[x][y] == 'X')
+		{
+			return true;
+		}
+		//if the value does not have an X or exist outside the grid
+		else 
+		{
+			return false;
+		}
+
+		return false;
 	}
+
 	//MIRROR MODE
 	if (mode == "Mirror")
 	{
-
+		if (x < 0) 
+		{
+			x = 0;
+		}
+		if (y < 0)
+		{
+			y = 0;
+		}
+		if (x > sizeX - 1)
+		{
+			x = sizeX - 1;
+		}
+		if (y > sizeY - 1)
+		{
+			y = sizeY - 1;
+		}
+		if (gameGrid[x][y] == 'X')
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
+}
+
+string Grid::openFile(string filePath)
+{
+	ifstream mapFile;
+	string line;
+	mapFile.open(filePath);
+	string strRow, strCol = "";
+	getline(mapFile, strRow);
+	getline(mapFile, strCol);
+	sizeX = stoi(strRow);
+	cout << "sizeX: " << sizeX << endl;
+	sizeY = stoi(strCol);
+	cout << "sizeY: " << sizeY << endl;
+	int rowCount = 0;
+	int colCount = 0;
+
+	makeGrid();
+
+	while (getline(mapFile, line))
+	{
+		for (int i = 0; i < line.length(); i++)
+		{
+			gameGrid[rowCount][colCount] = line[i];
+			colCount++;
+		}
+	
+		rowCount++;
+		colCount = 0;
+	}
+	mapFile.close();
+	return filePath;
 }
 
 

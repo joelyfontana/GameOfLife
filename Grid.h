@@ -15,7 +15,7 @@ public:
 	//constructor
 	Grid(int height, int width, float population, string mode);
 	//next generation constructor 
-	Grid(int height, int width, string mode, string nextString);
+	Grid(string filePath, string mode);
 	//destructor
 	~Grid();
 
@@ -25,6 +25,7 @@ public:
 	string getPopulation();
 	int countNeighbors(int row, int col);
 	bool checkNeighbor(int x, int y);
+	string openFile(string filePath);
 	string nextGenStr();
 	void nextGenGrid(string nextString);
 
@@ -32,8 +33,6 @@ public:
 	int sizeX;
 	int sizeY;
 	float density;
-	//string gridString = "";
-//	string popString = "";
 	string mode = "";
 
 	//make slash declare the array 
