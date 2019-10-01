@@ -26,20 +26,10 @@ Grid::Grid(int height, int width, float density, string mode)
 
 Grid::Grid(string filePath, string mode)
 {
+	//call the open file function
 	openFile(filePath);
 	this->mode = mode;
 }
-/*
-//next generation constructor (does not need to know the density)
-Grid::Grid(int height, int width, string mode, string nextString)
-{
-	sizeX = height;
-	sizeY = width;
-	this->mode = mode;
-	makeGrid();
-	nextGenGrid(nextString);
-}
-*/
 
 //destructor
 Grid::~Grid()
@@ -225,7 +215,7 @@ int Grid::countNeighbors(int row, int col)
 bool Grid::checkNeighbor(int x, int y)
 {
 	//CLASSIC MODE
-	if (mode == "Classic")
+	if (mode == "classic")
 	{
 		//check to see if the cell is outside the array and return false if it is
 		if (x < 0 || y < 0 || x >= sizeX || y >= sizeY)
@@ -240,8 +230,9 @@ bool Grid::checkNeighbor(int x, int y)
 		//returns false if the value is in the grid but is not an X
 		return false;
 	}
+
 	//DOUGHNUT MODE
-	if (mode == "Doughnut")
+	if (mode == "doughnut")
 	{
 		//check to see if the value is outside the grid
 		//if (x < 0 || y < 0 || x >= sizeX || y >= sizeY)
@@ -286,24 +277,29 @@ bool Grid::checkNeighbor(int x, int y)
 	}
 
 	//MIRROR MODE
-	if (mode == "Mirror")
+	if (mode == "mirror")
 	{
+		//check to see if x is out of the grid 
 		if (x < 0) 
 		{
 			x = 0;
 		}
+		//check to see if y is out of the grid
 		if (y < 0)
 		{
 			y = 0;
 		}
+		//check to see if x is out of the grid on the width
 		if (x > sizeX - 1)
 		{
 			x = sizeX - 1;
 		}
+		//check to see if y is out of the grid on the height
 		if (y > sizeY - 1)
 		{
 			y = sizeY - 1;
 		}
+		//if the value is in the grid
 		if (gameGrid[x][y] == 'X')
 		{
 			return true;
@@ -315,23 +311,35 @@ bool Grid::checkNeighbor(int x, int y)
 	}
 }
 
+//a function open the file
 string Grid::openFile(string filePath)
 {
 	ifstream mapFile;
 	string line;
 	mapFile.open(filePath);
+	if (mapFile.is_open())
+	{
+		cout << "file is opened" << endl;
+	}
+	else
+	{
+		throw runtime_error("the file is unable to be opened");
+	}
+
 	string strRow, strCol = "";
 	getline(mapFile, strRow);
 	getline(mapFile, strCol);
 	sizeX = stoi(strRow);
-	cout << "sizeX: " << sizeX << endl;
+	cout << "width: " << sizeX << endl;
 	sizeY = stoi(strCol);
-	cout << "sizeY: " << sizeY << endl;
+	cout << "height: " << sizeY << endl;
 	int rowCount = 0;
 	int colCount = 0;
+	
 
 	makeGrid();
-
+	
+	//put the new generation into a grid
 	while (getline(mapFile, line))
 	{
 		for (int i = 0; i < line.length(); i++)
@@ -343,6 +351,8 @@ string Grid::openFile(string filePath)
 		rowCount++;
 		colCount = 0;
 	}
+
+	//close the file!!
 	mapFile.close();
 	return filePath;
 }

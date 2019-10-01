@@ -7,11 +7,13 @@ Programming Assignment 2*/
 
 #include <chrono>
 #include <thread>
+#include <string>
 #include <stdio.h>
 #include "Grid.h"
 #include <time.h>
 #include <iostream>
 #include <fstream>
+#include <algorithm>
 
 using namespace std;
 using namespace std::this_thread;
@@ -36,40 +38,114 @@ int main(int argc, char** argv)
 	//ask the user what mode they would like to play
 	cout << "Welcome to the Game of Life! Would you like to play Classic Mode, Doughnut Mode, or Mirror Mode?: " << endl;
 	cin >> mode;
+	//make the input all lower case
+	std::transform(mode.begin(), mode.end(), mode.begin(), ::tolower);
+	//check to make sure that the correct modes have been entered and if not exit
+	bool foundMode = false;
+
+	if (mode == "classic")
+		foundMode = true;
+	else if (mode == "doughnut")
+		foundMode = true;
+	else if (mode == "mirror")
+		foundMode = true;
+
+	if (foundMode == false)
+	{
+		cout << "None of the correct modes were chosen. Program will exit." << endl;
+		return 1;
+	}
 
 	//get random to shuffle the string in the Grid.cpp
 	srand(time(NULL));
 	//ask the user if they would like to use a random file or a map file
-	cout << "Would you like to provide a map file or a random assignment?"<<endl;
+	cout << "Would you like to provide a map file (please enter either 'map' or 'file') or a random assignment ('random')?"<<endl;
 	cin >> answer;
+	//make the input all lower case
+	std::transform(answer.begin(), answer.end(), answer.begin(), ::tolower);
+	cout << "answer " << answer << endl;
 
-	if (answer == "map")
+	//if the user selects map file
+	if (answer == "map" || answer == "file")
 	{
 		cout << "Please enter the file path: " << endl;
 		cin >> filePath;
 		cout << "File Path: " << filePath << endl;
 	}
-
+	
 	//if user wants a random assignment 
 	else if (answer == "random")
 	{
+		string randInput = "";
 		cout << "Please enter the height: " << endl;
-		cin >> height;
-		cout << "Please enter the width: " << endl;
-		cin >> width;
-		cout << "Please enter the density (a decimal between 0 and 1): " << endl;
-		cin >> density;
-		if (density < 0 || density > 1)
+		cin >> randInput;
+		//check to see if the input is not a number
+		try
 		{
-			cout << "Please enter a density between 0 and 1: " << endl;
-			cin >> density;
+			height = stoi(randInput);
+		}
+		catch (invalid_argument e)
+		{
+			cout << "Please enter a number next time. Program will exit." << endl;
+			return 1;
+		}
+		cout << "Please enter the width: " << endl;
+		cin >> randInput;
+		try
+		{
+			width = stoi(randInput);
+		}
+		catch (invalid_argument e)
+		{
+			cout << "Please enter a number next time. Program will exit." << endl;
+			return 1;
+		}
+		cout << "Please enter the density (a decimal between 0 and 1): " << endl;
+		cin >> randInput;
+		try
+		{
+			density = stof(randInput);
+
+			if (density < 0 || density > 1)
+				throw runtime_error("Invalid density");
+		}
+		catch (...)
+		{
+			cout << "Please enter a number between 0 and 1 next time. Program will exit." << endl;
+			return 1;
 		}
 		cout << height << "," << width << "," << density << endl;
 	}
 
+	//check to see if the user entered the information wrong
+	else
+	{
+		cout << "Input was entered wrong. Program will exit." << endl;
+		//ends the program
+		return 1;
+	}
+
 	//ask the user what the want the hell they want between generations (back in my day, we didn't have pauses between generations)
-	cout << "Would you like to pause between generations, press the enter key between generations, or output the generations to a file? (Please enter either 'pause','enter', or 'output'): " << endl;
+	cout << "Would you like to pause between generations, press the enter key between generations, or output the generations to a file? (Please enter either 'pause','enter', or 'output'): \n" << endl;
 	cin >> input;
+	//make the input all lower case
+	std::transform(input.begin(), input.end(), input.begin(), ::tolower);
+
+	//check to make sure that the input is correct
+	bool foundInput = false;
+
+	if (input == "pause")
+		foundInput = true;
+	else if (input == "enter")
+		foundInput = true;
+	else if (input == "output")
+		foundInput = true;
+
+	if (foundInput == false)
+	{
+		cout << "None of the correct options were chosen. Program will exit." << endl;
+		return 1;
+	}
 	
 	//make new pointers
 	Grid* currentGen;
@@ -84,13 +160,24 @@ int main(int argc, char** argv)
 	//do not shuffle the grid if the map is chosen, instead set the height and width
 	else 
 	{
-		currentGen = new Grid(filePath, mode);
+		//error checking for file
+		try
+		{
+			currentGen = new Grid(filePath, mode);
+		}
+		catch (runtime_error e)
+		{
+			//exits the program
+			cout << "The program has been ended" << endl;
+			cout << e.what() << endl;
+			return 1;
+		}
 		height = currentGen ->sizeX;
 		width = currentGen->sizeY;
 	}
 	Grid* newGen;
 	string firstString = currentGen->getString();
-	cout << "Generation #0: \n" << firstString << endl;
+	cout << "Generation #0: \n" << endl;
 
 	//for the while loop
 	bool repeat = true;
@@ -105,6 +192,7 @@ int main(int argc, char** argv)
 
 		outfile << firstString << endl;
 		cout << firstString << endl;
+		
 	}
 	else
 	{
@@ -166,7 +254,7 @@ int main(int argc, char** argv)
 		//pauses between generations
 		if (input == "pause")
 		{
-			sleep_for(seconds(2));
+			sleep_for(seconds(1));
 		}
 		//must press enter between generations
 		else if (input == "enter")

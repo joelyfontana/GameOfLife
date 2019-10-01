@@ -35,6 +35,6 @@ public:
 	float density;
 	string mode = "";
 
-	//make slash declare the array 
+	// make/declare the array 
 	char** gameGrid;
 };
